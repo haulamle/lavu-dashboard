@@ -14,7 +14,7 @@ export default function SocialLogin() {
         />
       }
     >
-      Google
+      Sign in with Google
     </Button>
   );
 }

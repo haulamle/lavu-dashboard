@@ -19,7 +19,7 @@ export default function AuthRouter() {
             alt="logo"
             style={{ width: 256, objectFit: "cover" }}
           />
-          <Title>KanBan</Title>
+          <Title style={{ color: "#F15E2B" }}>Lavu</Title>
         </div>
         <div className="col content-center">
           <BrowserRouter>

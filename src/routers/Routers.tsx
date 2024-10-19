@@ -1,6 +1,11 @@
+import { useDispatch, useSelector } from "react-redux";
+import { authSeletor, AuthState } from "../reduxs/reducers/authReducer";
 import AuthRouter from "./AuthRouter";
 import MainRouter from "./MainRouter";
 
 export default function Routers() {
-  return 1 < 2 ? <AuthRouter /> : <MainRouter />;
+  const auth: AuthState = useSelector(authSeletor);
+  const dispatch = useDispatch();
+
+  return !auth.token ? <AuthRouter /> : <MainRouter />;
 }

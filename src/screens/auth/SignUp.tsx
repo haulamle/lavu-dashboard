@@ -1,7 +1,17 @@
-import { Button, Card, Checkbox, Form, Input, Space, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Space,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SocialLogin from "./components/SocialLogin";
+import handleAPI from "../../apis/handleAPI";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -11,12 +21,22 @@ export default function SignUp() {
 
   const [form] = Form.useForm();
 
-  const handleLogin = (values: {
+  const handleLogin = async (values: {
     email: string;
     password: string;
     name: string;
   }) => {
-    console.log(values);
+    const api = "/auth/register";
+    setIsLoading(true);
+    try {
+      const res: any = await handleAPI(api, values, "post");
+      message.success(res.message);
+    } catch (error: any) {
+      console.log(error);
+      message.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div>
@@ -57,6 +77,16 @@ export default function SignUp() {
             label={"Password"}
             rules={[
               { required: true, message: "Please enter your password!!!" },
+              () => ({
+                validator(_, value) {
+                  if (value && value.length < 6) {
+                    return Promise.reject(
+                      new Error("Password must be at least 6 characters")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
             <Input.Password
@@ -81,8 +111,9 @@ export default function SignUp() {
           </div>
         </div>
 
-        <div className="mt-4 mb-3">
+        <div className="mt-5 mb-3">
           <Button
+            loading={isLoading}
             onClick={() => form.submit()}
             type="primary"
             style={{ width: "100%" }}
