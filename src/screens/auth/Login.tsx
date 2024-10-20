@@ -1,8 +1,20 @@
-import { Button, Card, Checkbox, Form, Input, Space, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Space,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SocialLogin from "./components/SocialLogin";
 import handleAPI from "../../apis/handleAPI";
+import { useDispatch } from "react-redux";
+import { addAuth } from "../../reduxs/reducers/authReducer";
+import { localDataNames } from "../../constants/appInfos";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -11,12 +23,25 @@ export default function Login() {
   const [isRemember, setIsRemember] = useState(false);
 
   const [form] = Form.useForm();
-
+  const dispatch = useDispatch();
   const handleLogin = async (values: { email: string; password: string }) => {
     console.log(values);
+    try {
+      setIsLoading(true);
+      const res: any = await handleAPI("/auth/login", values, "post");
+      message.success(res.message);
+      res.data && dispatch(addAuth(res.data));
+      if (isRemember) {
+        localStorage.setItem(localDataNames.authData, JSON.stringify(res.data));
+      }
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
-    <Card>
+    <Card loading={isLoading}>
       <div className="text-center">
         <img
           src="https://firebasestorage.googleapis.com/v0/b/kanban-28821.appspot.com/o/logo-web.png?alt=media&token=eaaf7b15-f82b-45e3-aa8e-39fef1011200"
@@ -75,7 +100,6 @@ export default function Login() {
           <Link to="/forgot-password">Forgot password?</Link>
         </div>
       </div>
-
       <div className="mt-4 mb-3">
         <Button
           onClick={() => form.submit()}
@@ -86,7 +110,7 @@ export default function Login() {
           Login
         </Button>
       </div>
-      <SocialLogin />
+      <SocialLogin isRemember={isRemember} />
       <div className="mt-4 text-center">
         <Space>
           <Text type="secondary">Dont'have an account?</Text>

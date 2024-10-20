@@ -1,4 +1,4 @@
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import "./App.css";
 import Routers from "./routers/Routers";
 import { Provider } from "react-redux";

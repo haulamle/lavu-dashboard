@@ -12,13 +12,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import SocialLogin from "./components/SocialLogin";
 import handleAPI from "../../apis/handleAPI";
+import { addAuth } from "../../reduxs/reducers/authReducer";
+import { useDispatch } from "react-redux";
+import { localDataNames } from "../../constants/appInfos";
 
 const { Title, Paragraph, Text } = Typography;
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRemember, setIsRemember] = useState(false);
-
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
 
   const handleLogin = async (values: {
@@ -30,7 +33,10 @@ export default function SignUp() {
     setIsLoading(true);
     try {
       const res: any = await handleAPI(api, values, "post");
-      message.success(res.message);
+      if (res.data) {
+        message.success(res.message);
+        dispatch(addAuth(res.data));
+      }
     } catch (error: any) {
       console.log(error);
       message.error(error.message);
