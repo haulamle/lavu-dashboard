@@ -31,11 +31,11 @@ const HeaderComponent = () => {
     <div className="p-2 row bg-white m-0">
       <div className="col">
         <Input
-          placeholder="Search product, supplier, order"
-          style={{
-            borderRadius: 100,
-            width: "50%",
-          }}
+          placeholder="Search product, supplier, order..."
+          // style={{
+          //   borderRadius: 100,
+          //   width: "50%",
+          // }}
           size="large"
           prefix={<SearchNormal1 className="text-muted" size={20} />}
         />
