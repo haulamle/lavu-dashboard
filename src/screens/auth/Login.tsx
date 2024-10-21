@@ -25,7 +25,6 @@ export default function Login() {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleLogin = async (values: { email: string; password: string }) => {
-    console.log(values);
     try {
       setIsLoading(true);
       const res: any = await handleAPI("/auth/login", values, "post");

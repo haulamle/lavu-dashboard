@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "../screens/auth/Login";
 import SignUp from "../screens/auth/SignUp";
 import { Typography } from "antd";
+import { colors } from "../constants/colors";
 
 const { Title } = Typography;
 
@@ -19,7 +20,7 @@ export default function AuthRouter() {
             alt="logo"
             style={{ width: 256, objectFit: "cover" }}
           />
-          <Title style={{ color: "#F15E2B" }}>Lavu</Title>
+          <Title style={{ color: colors.primary500 }}>Lavu</Title>
         </div>
         <div className="col content-center">
           <BrowserRouter>

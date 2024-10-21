@@ -9,9 +9,9 @@ import { localDataNames } from "../../../constants/appInfos";
 
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
-provider.setCustomParameters({
-  login_hint: "haulamle4@gmail.com",
-});
+// provider.setCustomParameters({
+//   login_hint: "haulamle4@gmail.com",
+// });
 
 interface Props {
   isRemember?: boolean;
