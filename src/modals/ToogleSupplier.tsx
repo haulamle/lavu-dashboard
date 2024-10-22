@@ -9,12 +9,12 @@ import {
   Typography,
 } from "antd";
 import { User } from "iconsax-react";
-import { useRef, useState } from "react";
-import { colors } from "../constants/colors";
-import { upLoadFile } from "../utils/uploadFile";
-import { replaceName } from "../utils/replaceName";
+import { useEffect, useRef, useState } from "react";
 import handleAPI from "../apis/handleAPI";
+import { colors } from "../constants/colors";
 import { SupplierModel } from "../models/SupplierModel";
+import { replaceName } from "../utils/replaceName";
+import { upLoadFile } from "../utils/uploadFile";
 
 const { Paragraph } = Typography;
 
@@ -32,11 +32,20 @@ const ToogleSupplier = (props: Props) => {
   const [form] = Form.useForm();
   const inputRef = useRef<any>();
 
+  useEffect(() => {
+    if (supplier) {
+      form.setFieldsValue(supplier);
+      setIsTaking(supplier.isTaking === 1);
+    }
+  }, [supplier]);
+
   const addNewSupplier = async (values: any) => {
     setIsLoading(true);
 
     const data: any = {};
-    const api = "/supplier/add-new";
+    const api = `${
+      supplier ? `/supplier/update?id=${supplier._id}` : "/supplier/add-new"
+    }`;
     for (const i in values) {
       data[i] = values[i] ?? "";
     }
@@ -49,9 +58,9 @@ const ToogleSupplier = (props: Props) => {
     data.slug = replaceName(values.name);
 
     try {
-      const res: any = await handleAPI(api, data, "post");
+      const res: any = await handleAPI(api, data, supplier ? "put" : "post");
       message.success(res.message);
-      onAddNew(res.data);
+      !supplier && onAddNew(res.data);
       handleClose();
     } catch (error) {
       console.log(error);
@@ -61,6 +70,7 @@ const ToogleSupplier = (props: Props) => {
   };
   const handleClose = () => {
     form.resetFields();
+    setFile(undefined);
     onclose();
   };
   return (
@@ -72,8 +82,8 @@ const ToogleSupplier = (props: Props) => {
       onCancel={handleClose}
       onOk={() => form.submit()}
       okButtonProps={{ loading: isLoading }}
-      title="Add Supplier"
-      okText="Add Supplier"
+      title={supplier ? "Update Supplier" : "Add new supplier"}
+      okText={supplier ? "Update Supplier" : "Add Supplier"}
       cancelText="Discard"
     >
       <label
@@ -82,6 +92,8 @@ const ToogleSupplier = (props: Props) => {
       >
         {file ? (
           <Avatar size={100} src={URL.createObjectURL(file)} />
+        ) : supplier ? (
+          <Avatar size={100} src={supplier.photoUrl} />
         ) : (
           <Avatar
             size={100}
@@ -120,6 +132,12 @@ const ToogleSupplier = (props: Props) => {
         </Form.Item>
         <Form.Item name={"product"} label="Product">
           <Input placeholder="Enter product" allowClear />
+        </Form.Item>
+        <Form.Item name={"email"} label="Email">
+          <Input placeholder="Enter email" allowClear type="email" />
+        </Form.Item>
+        <Form.Item name={"active"} label="Active">
+          <Input placeholder="Enter active" allowClear type="number" />
         </Form.Item>
         <Form.Item name={"categories"} label="Category">
           <Select options={[]} />

@@ -31,6 +31,7 @@ export default function SocialLogin({ isRemember }: Props) {
           const data = {
             name: user.displayName,
             email: user.email,
+            photoUrl: user.photoURL,
           };
 
           const api = "/auth/google-login";

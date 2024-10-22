@@ -17,3 +17,7 @@ code {
   align-items: center;
   display: flex;
 }
+
+.ant-menu-title-content a {
+  text-decoration: none;
+}
