@@ -125,7 +125,7 @@ const Suppliers = () => {
     const api = `/supplier/remove?id=${id}`;
     try {
       await handleAPI(api, undefined, "put");
-      getSuppliers();
+      await getSuppliers();
     } catch (error: any) {
       message.error(error.message);
     }

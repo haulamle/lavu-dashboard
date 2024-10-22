@@ -1,13 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Form,
-  Input,
-  message,
-  Modal,
-  Select,
-  Typography,
-} from "antd";
+import { Avatar, Button, Form, message, Modal, Typography } from "antd";
 import { User } from "iconsax-react";
 import { useEffect, useRef, useState } from "react";
 import handleAPI from "../apis/handleAPI";
@@ -15,6 +6,8 @@ import { colors } from "../constants/colors";
 import { SupplierModel } from "../models/SupplierModel";
 import { replaceName } from "../utils/replaceName";
 import { upLoadFile } from "../utils/uploadFile";
+import { FormModel } from "../models/FormModel";
+import FormItem from "../components/FormItem";
 
 const { Paragraph } = Typography;
 
@@ -27,10 +20,17 @@ interface Props {
 const ToogleSupplier = (props: Props) => {
   const { visible, onclose, onAddNew, supplier } = props;
   const [isLoading, setIsLoading] = useState(false);
+  const [isGetting, setIsGetting] = useState(false);
   const [isTaking, setIsTaking] = useState<boolean>();
+  const [formData, setFormData] = useState<FormModel>();
   const [file, setFile] = useState<any>();
+
   const [form] = Form.useForm();
   const inputRef = useRef<any>();
+
+  useEffect(() => {
+    getFormData();
+  }, []);
 
   useEffect(() => {
     if (supplier) {
@@ -68,6 +68,20 @@ const ToogleSupplier = (props: Props) => {
       setIsLoading(false);
     }
   };
+
+  const getFormData = async () => {
+    const api = "/supplier/get-form";
+    setIsGetting(true);
+    try {
+      const res = await handleAPI(api);
+      res.data && setFormData(res.data);
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsGetting(false);
+    }
+  };
+
   const handleClose = () => {
     form.resetFields();
     setFile(undefined);
@@ -76,6 +90,7 @@ const ToogleSupplier = (props: Props) => {
   return (
     <Modal
       // width={720}
+      loading={isGetting}
       closable={!isLoading}
       open={visible}
       onClose={handleClose}
@@ -102,7 +117,7 @@ const ToogleSupplier = (props: Props) => {
               border: "1px dashed #e0e0e0",
             }}
           >
-            <User size={60} color={colors.gray600}></User>
+            <User size={60} color={colors.gray600} />
           </Avatar>
         )}
 
@@ -114,59 +129,22 @@ const ToogleSupplier = (props: Props) => {
           </Button>
         </div>
       </label>
-      <Form
-        disabled={isLoading}
-        form={form}
-        layout="horizontal"
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 18 }}
-        size="large"
-        onFinish={addNewSupplier}
-      >
-        <Form.Item
-          name={"name"}
-          rules={[{ required: true, message: "Enter supplier name" }]}
-          label="Suplier Name"
+      {formData && (
+        <Form
+          disabled={isLoading}
+          form={form}
+          layout={formData.layout || "horizontal"}
+          labelCol={{ span: formData.labelCol }}
+          wrapperCol={{ span: formData.wrapperCol }}
+          size="large"
+          onFinish={addNewSupplier}
         >
-          <Input placeholder="Entersuplier name" allowClear />
-        </Form.Item>
-        <Form.Item name={"product"} label="Product">
-          <Input placeholder="Enter product" allowClear />
-        </Form.Item>
-        <Form.Item name={"email"} label="Email">
-          <Input placeholder="Enter email" allowClear type="email" />
-        </Form.Item>
-        <Form.Item name={"active"} label="Active">
-          <Input placeholder="Enter active" allowClear type="number" />
-        </Form.Item>
-        <Form.Item name={"categories"} label="Category">
-          <Select options={[]} />
-        </Form.Item>
-        <Form.Item name={"price"} label="Price">
-          <Input placeholder="Enter buying price" type="number" />
-        </Form.Item>
-        <Form.Item name={"contact"} label="Contact">
-          <Input placeholder="Enter supplier contact number" allowClear />
-        </Form.Item>
-        <Form.Item label="Type">
-          <div className="mb-2">
-            <Button
-              size="middle"
-              onClick={() => setIsTaking(false)}
-              type={isTaking === false ? "primary" : "default"}
-            >
-              Not taking return
-            </Button>
-          </div>
-          <Button
-            size="middle"
-            onClick={() => setIsTaking(true)}
-            type={isTaking ? "primary" : "default"}
-          >
-            Taking return
-          </Button>
-        </Form.Item>
-      </Form>
+          {formData.formItems.map((item) => (
+            <FormItem item={item} checked={isTaking} setChecked={setIsTaking} />
+          ))}
+        </Form>
+      )}
+
       <div className="d-none">
         <input
           ref={inputRef}
