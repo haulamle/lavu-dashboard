@@ -1,26 +1,16 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  Form,
-  Input,
-  message,
-  Space,
-  Typography,
-} from "antd";
+import { Button, Card, Form, Input, message, Space, Typography } from "antd";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SocialLogin from "./components/SocialLogin";
 import handleAPI from "../../apis/handleAPI";
 import { addAuth } from "../../reduxs/reducers/authReducer";
 import { useDispatch } from "react-redux";
-import { localDataNames } from "../../constants/appInfos";
+import { colors } from "../../constants/colors";
 
 const { Title, Paragraph, Text } = Typography;
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isRemember, setIsRemember] = useState(false);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
@@ -45,7 +35,7 @@ export default function SignUp() {
     }
   };
   return (
-    <div>
+    <div style={{ width: "80%" }}>
       <Card>
         <div className="text-center">
           <Title level={2}>Create an account</Title>
@@ -103,26 +93,12 @@ export default function SignUp() {
           </Form.Item>
         </Form>
 
-        <div className="row">
-          <div className="col">
-            <Checkbox
-              checked={isRemember}
-              onChange={(e) => setIsRemember(e.target.checked)}
-            >
-              Remember for 30 days
-            </Checkbox>
-          </div>
-          <div className="col text-right">
-            <Link to="/forgot-password">Forgot password?</Link>
-          </div>
-        </div>
-
         <div className="mt-5 mb-3">
           <Button
             loading={isLoading}
             onClick={() => form.submit()}
             type="primary"
-            style={{ width: "100%" }}
+            style={{ width: "100%", backgroundColor: colors.primary500 }}
             size="large"
           >
             Sign Up
@@ -132,7 +108,9 @@ export default function SignUp() {
         <div className="mt-4 text-center">
           <Space>
             <Text type="secondary">Dont'have an account?</Text>
-            <Link to="/login">Login</Link>
+            <Link style={{ color: colors.primary500 }} to="/login">
+              Login
+            </Link>
           </Space>
         </div>
       </Card>

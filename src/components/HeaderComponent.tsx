@@ -48,11 +48,6 @@ const HeaderComponent = () => {
           />
           <Dropdown menu={{ items }}>
             <Avatar
-              style={{
-                borderColor: colors.primary500,
-                borderWidth: 1,
-                borderBlockStyle: "solid",
-              }}
               src={
                 user.photoUrl ??
                 "https://firebasestorage.googleapis.com/v0/b/kanban-28821.appspot.com/o/admin.png?alt=media&token=b131bc2a-6a5e-47c7-9f6a-8b29eb31eecb"

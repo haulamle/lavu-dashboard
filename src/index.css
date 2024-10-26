@@ -21,3 +21,24 @@ code {
 .ant-menu-title-content a {
   text-decoration: none;
 }
+.custom-scroll::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #3498db;
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3498db #f1f1f1;
+  overflow: auto;
+  max-height: 300px; /* Chiều cao tối đa của bảng */
+  max-width: 500px; /* Chiều rộng tối đa của bảng */
+}

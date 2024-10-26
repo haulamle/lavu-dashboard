@@ -28,7 +28,7 @@ export default function MainRouter() {
           <Affix offsetTop={0}>
             <HeaderComponent />
           </Affix>
-          <Content className="pt-3 container-fluid">
+          <Content className="pt-3 container-fluid bg-white">
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route>

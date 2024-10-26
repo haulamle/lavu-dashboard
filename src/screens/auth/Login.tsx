@@ -15,6 +15,7 @@ import handleAPI from "../../apis/handleAPI";
 import { useDispatch } from "react-redux";
 import { addAuth } from "../../reduxs/reducers/authReducer";
 import { localDataNames } from "../../constants/appInfos";
+import { colors } from "../../constants/colors";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -96,14 +97,16 @@ export default function Login() {
           </Checkbox>
         </div>
         <div className="col text-right">
-          <Link to="/forgot-password">Forgot password?</Link>
+          <Link style={{ color: colors.primary500 }} to="/forgot-password">
+            Forgot password?
+          </Link>
         </div>
       </div>
       <div className="mt-4 mb-3">
         <Button
           onClick={() => form.submit()}
           type="primary"
-          style={{ width: "100%" }}
+          style={{ width: "100%", background: colors.primary500 }}
           size="large"
         >
           Login
@@ -113,7 +116,9 @@ export default function Login() {
       <div className="mt-4 text-center">
         <Space>
           <Text type="secondary">Dont'have an account?</Text>
-          <Link to="/sign-up">Sign up</Link>
+          <Link style={{ color: colors.primary500 }} to="/sign-up">
+            Sign up
+          </Link>
         </Space>
       </div>
     </Card>
