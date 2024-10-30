@@ -1,7 +1,7 @@
 import Login from "./auth/Login";
 import SignUp from "./auth/SignUp";
-import { HomeScreen } from "./HomeScreen";
-import Inventories from "./Inventories";
+import HomeScreen from "./HomeScreen";
+import Inventories from "./inventories/Inventories";
 import ManageStore from "./ManageStore";
 import Orders from "./Orders";
 import PromotionScreen from "./PromotionScreen";

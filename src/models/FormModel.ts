@@ -22,6 +22,12 @@ export interface FormItemModel {
 }
 
 export interface SelectModel {
-  label: string;
+  title: string;
   value: string;
+}
+
+export interface TreeModel {
+  title: string;
+  value: string;
+  children?: SelectModel[];
 }

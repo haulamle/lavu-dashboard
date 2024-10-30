@@ -59,9 +59,7 @@ const TableComponent = (props: Props) => {
         key: "index",
         dataIndex: "index",
         title: "#",
-        align: "center",
-
-        width: 100,
+        width: 50,
       });
       if (extraColumn) {
         items.push({
@@ -119,23 +117,24 @@ const TableComponent = (props: Props) => {
       </th>
     );
   };
-
   return (
     <>
       <Table
         pagination={{
-          total,
           showSizeChanger: true,
-          onShowSizeChange: (_current, size) =>
-            setPageInfo({
-              ...pageInfo,
-              pageSize: size,
-            }),
-          onChange: (current) =>
+          // onShowSizeChange: (_current, size) =>
+          //   setPageInfo({
+          //     ...pageInfo,
+          //     pageSize: size,
+          //   }),
+          total,
+          onChange: (current, size) =>
             setPageInfo({
               ...pageInfo,
               page: current,
+              pageSize: size,
             }),
+
           showQuickJumper: true,
         }}
         scroll={{ y: scroollHeight ? scroollHeight : "calc(100vh - 320px)" }}

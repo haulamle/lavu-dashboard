@@ -11,6 +11,7 @@ import {
 } from "../screens";
 import { Affix, Layout } from "antd";
 import { HeaderComponent } from "../components";
+import AddProduct from "../screens/inventories/AddProduct";
 const { Content, Footer } = Layout;
 
 export default function MainRouter() {
@@ -33,8 +34,8 @@ export default function MainRouter() {
               <Route path="/" element={<HomeScreen />} />
               <Route>
                 <Route path="/inventory" element={<Inventories />} />
-                {/* <Route path='/inventory/add-product' element={<AddProduct />} />
-								<Route
+                <Route path="/inventory/add-product" element={<AddProduct />} />
+                {/* <Route
 									path='/inventory/detail/:slug'
 									element={<ProductDetail />}
 								/> */}

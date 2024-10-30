@@ -38,3 +38,43 @@
     transform: rotate(360deg);
   }
 }
+
+.icon-wapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  padding: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ant-card-body {
+  padding: 16px !important;
+}
+
+.ant-divider-horizontal {
+  margin: 0 0 16px 0;
+}
+
+a {
+  text-decoration: none !important;
+}
+.text-2-line {
+  line-height: 1.5em;
+  height: 1.5em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.filter-card {
+  -webkit-box-shadow: 0px 9px 29px -17px rgba(66, 68, 90, 1);
+  -moz-box-shadow: 0px 9px 29px -17px rgba(66, 68, 90, 1);
+  box-shadow: 0px 9px 29px -17px rgba(66, 68, 90, 1);
+}
+
+.ant-menu-item-selected::after {
+  border-bottom-width: 0px;
+}

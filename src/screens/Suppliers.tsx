@@ -18,7 +18,6 @@ const Suppliers = () => {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(10);
   const [forms, setForms] = useState<FormModel>();
-
   useEffect(() => {
     getData();
   }, []);
@@ -92,7 +91,7 @@ const Suppliers = () => {
           onAddnew={() => setIsVisibleModalAddNew(true)}
           extraColumn={(item) => (
             <Space>
-              <Tooltip title="Edit">
+              <Tooltip title="Edit" key="btn-edit">
                 <Button
                   onClick={() => {
                     setSupplierSelected(item);
@@ -101,7 +100,7 @@ const Suppliers = () => {
                   icon={<Edit2 size={20} className="text-info" />}
                 />
               </Tooltip>
-              <Tooltip title="Delete">
+              <Tooltip title="Delete" key="btn-delete">
                 <Button
                   onClick={() =>
                     confirm({
