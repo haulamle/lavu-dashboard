@@ -12,6 +12,7 @@ import {
 import { Affix, Layout } from "antd";
 import { HeaderComponent } from "../components";
 import AddProduct from "../screens/inventories/AddProduct";
+import { Categories } from "../screens/Categories";
 const { Content, Footer } = Layout;
 
 export default function MainRouter() {
@@ -43,13 +44,13 @@ export default function MainRouter() {
               <Route path="/report" element={<ReportScreen />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/orders" element={<Orders />} />
-              {/* <Route>
-								<Route path='/categories' element={<Categories />} />
-								<Route
+              <Route>
+                <Route path="/categories" element={<Categories />} />
+                {/* <Route
 									path='/categories/detail/:slug'
 									element={<CategoryDetail />}
-								/>
-							</Route> */}
+								/> */}
+              </Route>
 
               <Route path="/manage-store" element={<ManageStore />} />
               <Route path="/promotions" element={<PromotionScreen />} />

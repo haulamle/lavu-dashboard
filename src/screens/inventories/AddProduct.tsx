@@ -19,6 +19,7 @@ import { ModalCategory } from "../../modals";
 import { SelectModel, TreeModel } from "../../models/FormModel";
 import { replaceName } from "../../utils/replaceName";
 import { upLoadFile } from "../../utils/uploadFile";
+import { getTreeValues } from "../../utils/getTreeValues";
 
 const { Title } = Typography;
 
@@ -50,49 +51,20 @@ const AddProduct = () => {
   };
 
   const handleAddNewProduct = async (values: any) => {
+    console.log(values);
     const content = editorRef.current.getContent();
   };
 
   const getSupplier = async () => {
     const api = "/supplier";
     const res = await handleAPI(api);
-    const options = res.data.items.map((item: any) => ({
+    const data = res.data.items;
+    const options = data.map((item: any) => ({
       value: item._id,
       label: item.name,
     }));
+
     setSupplierOptions(options);
-  };
-
-  const getTreeValues = (data: any[], key: string) => {
-    const items: any[] = [];
-    const keys: string[] = [];
-
-    data.forEach((item) => {
-      if (item[`${key}`] && !keys.includes(item[`${key}`])) {
-        keys.push(item[`${key}`]);
-      }
-    });
-    data.forEach((item) => {
-      if (item[`${key}`]) {
-        const index = items.findIndex((i) => i.value === item[`${key}`]);
-        const children = data.filter(
-          (i) => i[`${key}`] && i[`${key}`] === item[`${key}`]
-        );
-        if (index !== -1) {
-          items[index].children = children.map((i) => ({
-            title: i.title,
-            value: i._id,
-          }));
-        }
-      } else {
-        items.push({
-          title: item.title,
-          value: item._id,
-        });
-      }
-    });
-
-    return items;
   };
 
   const getCategories = async () => {
@@ -197,7 +169,6 @@ const AddProduct = () => {
                 >
                   <TreeSelect
                     showSearch
-                    defaultValue={categories[0]?.value}
                     treeData={categories}
                     dropdownRender={(menu) => (
                       <>

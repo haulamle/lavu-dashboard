@@ -28,7 +28,7 @@ const SiderComponent = () => {
       icon: <MdOutlineInventory size={20} />,
       children: [
         {
-          key: "inventory",
+          key: "inventory-chid",
           label: <Link to={"/inventory"}>All</Link>,
         },
         {
