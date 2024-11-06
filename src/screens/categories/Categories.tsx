@@ -2,12 +2,13 @@ import { Button, Card, message, Modal, Space, Spin, Tooltip } from "antd";
 import Table, { ColumnProps } from "antd/es/table";
 import { Edit2, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
-import handleAPI from "../apis/handleAPI";
-import { AddCategory } from "../components";
-import { colors } from "../constants/colors";
-import { TreeModel } from "../models/FormModel";
-import { CategoryModel } from "../models/ProductModel";
-import { getTreeValues } from "../utils/getTreeValues";
+import handleAPI from "../../apis/handleAPI";
+import { AddCategory } from "../../components";
+import { colors } from "../../constants/colors";
+import { TreeModel } from "../../models/FormModel";
+import { CategoryModel } from "../../models/ProductModel";
+import { getTreeValues } from "../../utils/getTreeValues";
+import { Link } from "react-router-dom";
 
 const { confirm } = Modal;
 export const Categories = () => {
@@ -29,10 +30,10 @@ export const Categories = () => {
     setIsLoading(true);
     try {
       const res = await handleAPI(api);
-      setCategories(res.data);
+      setCategories(getTreeValues(res.data, false));
 
       if (isSelected) {
-        setTreeValues(getTreeValues(res.data, "parentId"));
+        setTreeValues(getTreeValues(res.data, true));
       }
     } catch (error: any) {
       message.error(error.message);
@@ -45,7 +46,12 @@ export const Categories = () => {
     {
       key: "title",
       title: "Name",
-      dataIndex: "title",
+      dataIndex: "",
+      render: (item: CategoryModel) => (
+        <Link to={`/categories/detail/${item.slug}?id=${item._id}`}>
+          {item.title}
+        </Link>
+      ),
     },
     {
       key: "description",

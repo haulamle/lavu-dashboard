@@ -1,31 +1,48 @@
-export const getTreeValues = (data: any[], key: string) => {
-  const items: any[] = [];
-  const keys: string[] = [];
+export const getTreeValues = (data: any[], isSelect?: boolean) => {
+  const values: any = [];
+  const items = data.filter((element) => !element.parentId);
+  const newItems = items.map((item) =>
+    isSelect
+      ? {
+          label: item.title,
+          value: item._id,
+        }
+      : { ...item, key: item._id }
+  );
 
-  data.forEach((item) => {
-    if (item[`${key}`] && !keys.includes(item[`${key}`])) {
-      keys.push(item[`${key}`]);
-    }
-  });
-  data.forEach((item) => {
-    if (item[`${key}`]) {
-      const index = items.findIndex((i) => i.value === item[`${key}`]);
-      const children = data.filter(
-        (i) => i[`${key}`] && i[`${key}`] === item[`${key}`]
-      );
-      if (index !== -1) {
-        items[index].children = children.map((i) => ({
-          title: i.title,
-          value: i._id,
-        }));
-      }
-    } else {
-      items.push({
-        title: item.title,
-        value: item._id,
-      });
-    }
+  newItems.forEach((item) => {
+    const children = changeMenu(
+      data,
+      isSelect ? item.value : item._id,
+      isSelect ?? false
+    );
+    values.push({
+      ...item,
+      children,
+    });
   });
 
+  return values;
+};
+
+const changeMenu = (data: any[], id: string, isSelect: boolean) => {
+  const items: any = [];
+  const datas = data.filter((element) => element.parentId === id);
+
+  datas.forEach((val) =>
+    items.push(
+      isSelect
+        ? {
+            label: val.title,
+            value: val._id,
+            children: changeMenu(data, val._id, isSelect),
+          }
+        : {
+            ...val,
+            key: val._id,
+            children: changeMenu(data, val._id, isSelect),
+          }
+    )
+  );
   return items;
 };

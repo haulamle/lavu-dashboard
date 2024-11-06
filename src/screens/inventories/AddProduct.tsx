@@ -68,13 +68,13 @@ const AddProduct = () => {
   };
 
   const getCategories = async () => {
-    const res = await handleAPI("/products/get-categories");
-
+    const res = await handleAPI(`/products/get-categories`);
     const datas = res.data;
-    const data = datas.length > 0 ? getTreeValues(datas, "parentId") : [];
+
+    const data = datas.length > 0 ? getTreeValues(datas, true) : [];
+
     setCategories(data);
   };
-
   return isLoading ? (
     <Spin />
   ) : (
@@ -195,7 +195,7 @@ const AddProduct = () => {
                     defaultValue={supplierOptions[0]?.value}
                     showSearch
                     filterOption={(input, option) =>
-                      replaceName(option?.title ? option.title : "").includes(
+                      replaceName(option?.label ? option.label : "").includes(
                         replaceName(input)
                       )
                     }

@@ -22,7 +22,7 @@ export interface FormItemModel {
 }
 
 export interface SelectModel {
-  title: string;
+  label: string;
   value: string;
 }
 
