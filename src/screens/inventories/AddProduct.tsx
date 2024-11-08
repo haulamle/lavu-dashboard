@@ -11,6 +11,7 @@ import {
   Spin,
   TreeSelect,
   Typography,
+  Image,
 } from "antd";
 import { Add } from "iconsax-react";
 import { useEffect, useRef, useState } from "react";
@@ -30,8 +31,11 @@ const AddProduct = () => {
   const [supplierOptions, setSupplierOptions] = useState<SelectModel[]>([]);
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [files, setFiles] = useState<any[]>([]);
 
   const editorRef = useRef<any>(null);
+  const inpFileRef = useRef<any>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -51,8 +55,35 @@ const AddProduct = () => {
   };
 
   const handleAddNewProduct = async (values: any) => {
-    console.log(values);
     const content = editorRef.current.getContent();
+    const data: any = {};
+    setIsCreating(true);
+    for (const i in values) {
+      data[i] = values[i] ?? "";
+    }
+    data.content = content;
+    data.slug = replaceName(values.title);
+
+    if (files.length > 0) {
+      const urls: string[] = [];
+      for (const i in files) {
+        if (files[i].size && files[i].size > 0) {
+          const url = await upLoadFile(files[i]);
+          urls.push(url);
+        }
+      }
+      data.images = urls;
+    }
+
+    try {
+      const res = await handleAPI("/products/add-new", data, "post");
+      message.success(res.data.message);
+      window.history.back();
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const getSupplier = async () => {
@@ -82,6 +113,7 @@ const AddProduct = () => {
       <div className="container">
         <Title level={5}>Add new product</Title>
         <Form
+          disabled={isCreating}
           size="large"
           form={form}
           onFinish={handleAddNewProduct}
@@ -110,7 +142,7 @@ const AddProduct = () => {
               </Form.Item>
 
               <Editor
-                disabled={isLoading}
+                disabled={isLoading || isCreating}
                 apiKey="c8ri048c72n87em4govx3yacxovhahncjald16bdxhu9qyv0"
                 onInit={(evt, editor) => (editorRef.current = editor)}
                 initialValue={content !== "" ? content : ""}
@@ -150,26 +182,29 @@ const AddProduct = () => {
             <div className="col-4">
               <Card size="small" className="mt-4">
                 <Space>
-                  <Button size="middle" onClick={() => form.resetFields()}>
+                  <Button
+                    loading={isCreating}
+                    size="middle"
+                    onClick={() => form.resetFields()}
+                  >
                     Cancel
                   </Button>
                   <Button
                     type="primary"
                     size="middle"
                     onClick={() => form.submit()}
+                    loading={isCreating}
                   >
                     Submit
                   </Button>
                 </Space>
               </Card>
               <Card size="small" className="mt-3" title="Categories">
-                <Form.Item
-                  name={"categoried"}
-                  rules={[{ message: "Enter category" }]}
-                >
+                <Form.Item name={"categories"}>
                   <TreeSelect
                     showSearch
                     treeData={categories}
+                    multiple
                     dropdownRender={(menu) => (
                       <>
                         {menu}
@@ -192,7 +227,6 @@ const AddProduct = () => {
                   rules={[{ required: true, message: "Enter Supplier" }]}
                 >
                   <Select
-                    defaultValue={supplierOptions[0]?.value}
                     showSearch
                     filterOption={(input, option) =>
                       replaceName(option?.label ? option.label : "").includes(
@@ -203,6 +237,36 @@ const AddProduct = () => {
                   />
                 </Form.Item>
               </Card>
+              <Card
+                size="small"
+                className="mt-3"
+                title="Images"
+                extra={
+                  <Button
+                    size="small"
+                    onClick={() => inpFileRef.current?.click()}
+                  >
+                    Upload images
+                  </Button>
+                }
+              >
+                {files.length > 0 && (
+                  <Image.PreviewGroup>
+                    {Object.keys(files).map(
+                      (i) =>
+                        files[parseInt(i)].size &&
+                        files[parseInt(i)].size > 0 && (
+                          <Image
+                            key={i}
+                            width={"50%"}
+                            src={URL.createObjectURL(files[parseInt(i)])}
+                          />
+                        )
+                    )}
+                  </Image.PreviewGroup>
+                )}
+              </Card>
+
               <Card className="mt-3">
                 <Input
                   value={fileUrl}
@@ -224,6 +288,15 @@ const AddProduct = () => {
             </div>
           </div>
         </Form>
+      </div>
+      <div className="d-none">
+        <input
+          onChange={(vals: any) => setFiles(vals.target.files)}
+          type="file"
+          accept="image/*"
+          multiple
+          ref={inpFileRef}
+        />
       </div>
       <ModalCategory
         visible={isVisibleAddCategory}
