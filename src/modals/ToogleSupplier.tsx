@@ -5,9 +5,9 @@ import handleAPI from "../apis/handleAPI";
 import { colors } from "../constants/colors";
 import { SupplierModel } from "../models/SupplierModel";
 import { replaceName } from "../utils/replaceName";
-import { upLoadFile } from "../utils/uploadFile";
 import { FormModel } from "../models/FormModel";
 import FormItem from "../components/FormItem";
+import { uploadFile } from "../utils/uploadFile";
 
 const { Paragraph } = Typography;
 
@@ -53,7 +53,7 @@ const ToogleSupplier = (props: Props) => {
     data.isTaking = isTaking ? 1 : 0;
 
     if (file) {
-      data.photoUrl = await upLoadFile(file);
+      data.photoUrl = await uploadFile(file);
     }
     data.slug = replaceName(values.name);
 

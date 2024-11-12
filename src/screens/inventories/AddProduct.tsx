@@ -19,8 +19,8 @@ import handleAPI from "../../apis/handleAPI";
 import { ModalCategory } from "../../modals";
 import { SelectModel, TreeModel } from "../../models/FormModel";
 import { replaceName } from "../../utils/replaceName";
-import { upLoadFile } from "../../utils/uploadFile";
 import { getTreeValues } from "../../utils/getTreeValues";
+import { uploadFile } from "../../utils/uploadFile";
 
 const { Title } = Typography;
 
@@ -68,7 +68,7 @@ const AddProduct = () => {
       const urls: string[] = [];
       for (const i in files) {
         if (files[i].size && files[i].size > 0) {
-          const url = await upLoadFile(files[i]);
+          const url = await uploadFile(files[i]);
           urls.push(url);
         }
       }
@@ -279,7 +279,7 @@ const AddProduct = () => {
                   onChange={async (files: any) => {
                     const file = files.target.files[0];
                     if (file) {
-                      const dowloadUrl = await upLoadFile(file);
+                      const dowloadUrl = await uploadFile(file);
                       dowloadUrl && setFileUrl(dowloadUrl);
                     }
                   }}
