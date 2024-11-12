@@ -22,4 +22,18 @@ export interface ProductModel {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  subItems: SubProductModel[];
+}
+
+export interface SubProductModel {
+  size: string;
+  color: string;
+  price: number;
+  quantity: number;
+  productId: string;
+  images: any[];
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }

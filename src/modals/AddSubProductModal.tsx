@@ -10,18 +10,20 @@ import {
   UploadProps,
 } from "antd";
 import { useEffect, useState } from "react";
-import { ProductModel } from "../models/ProductModel";
 import { colors } from "../constants/colors";
+import { ProductModel, SubProductModel } from "../models/ProductModel";
 import { uploadFile } from "../utils/uploadFile";
+import handleAPI from "../apis/handleAPI";
 
 interface Props {
   visible: boolean;
   onclose: () => void;
   product?: ProductModel;
+  onAddNew: (val: SubProductModel) => void;
 }
 
 const AddSubProductModal = (props: Props) => {
-  const { visible, onclose, product } = props;
+  const { visible, onclose, product, onAddNew } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
@@ -48,9 +50,19 @@ const AddSubProductModal = (props: Props) => {
         });
         data.images = urls;
       }
+      if (data.color) {
+        data.color =
+          typeof data.color === "string"
+            ? data.color
+            : data.color.toHexString();
+      }
 
       setIsLoading(true);
+      const api = "/products/add-sub-product";
       try {
+        const res = await handleAPI(api, data, "post");
+        onAddNew(res.data);
+        handleCancel();
       } catch (error: any) {
         message.error(error.message);
       } finally {
@@ -73,7 +85,7 @@ const AddSubProductModal = (props: Props) => {
           url: item.originFileObj
             ? URL.createObjectURL(item.originFileObj)
             : "",
-          //   status: "done",
+          status: "done",
         }
     );
     setFileList(items);

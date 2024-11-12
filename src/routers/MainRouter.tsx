@@ -14,6 +14,7 @@ import { HeaderComponent } from "../components";
 import AddProduct from "../screens/inventories/AddProduct";
 import { Categories } from "../screens/categories/Categories";
 import CategoryDetail from "../screens/categories/CategoryDetail";
+import ProductDetail from "../screens/inventories/ProductDetail";
 const { Content, Footer } = Layout;
 
 export default function MainRouter() {
@@ -37,10 +38,10 @@ export default function MainRouter() {
               <Route>
                 <Route path="/inventory" element={<Inventories />} />
                 <Route path="/inventory/add-product" element={<AddProduct />} />
-                {/* <Route
-									path='/inventory/detail/:slug'
-									element={<ProductDetail />}
-								/> */}
+                <Route
+                  path="/inventory/detail/:slug"
+                  element={<ProductDetail />}
+                />
               </Route>
               <Route path="/report" element={<ReportScreen />} />
               <Route path="/suppliers" element={<Suppliers />} />
