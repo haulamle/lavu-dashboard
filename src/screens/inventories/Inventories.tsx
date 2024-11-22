@@ -18,7 +18,7 @@ import CategoryComponent from "../../components/CategoryComponent";
 import { MdLibraryAdd } from "react-icons/md";
 import { colors } from "../../constants/colors";
 import { AddSubProductModal } from "../../modals";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Edit2, Trash } from "iconsax-react";
 
 const { confirm } = Modal;
@@ -28,9 +28,13 @@ const Inventories = () => {
   const [isVisibleModalAddSubProduct, setIsVisibleModalAddSubProduct] =
     useState(false);
   const [productSelected, setProductSelected] = useState<ProductModel>();
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     getProducts();
   }, []);
+
   const getProducts = async () => {
     setIsLoading(true);
     try {
@@ -132,22 +136,30 @@ const Inventories = () => {
       key: "Color",
       title: "Color",
       dataIndex: "subItems",
-      render: (items: SubProductModel[]) => (
-        <Space>
-          {items.length > 0 &&
-            items.map((item, index) => (
-              <div
-                key={`color=${item.color}` + index}
-                style={{
-                  backgroundColor: item.color,
-                  width: 24,
-                  height: 24,
-                  borderRadius: 12,
-                }}
-              />
-            ))}
-        </Space>
-      ),
+      render: (items: SubProductModel[]) => {
+        const colors: string[] = [];
+        items.forEach((item) => {
+          if (!colors.includes(item.color)) {
+            colors.push(item.color);
+          }
+        });
+        return (
+          <Space>
+            {colors.length > 0 &&
+              colors.map((item, index) => (
+                <div
+                  key={`color=${item}` + index}
+                  style={{
+                    backgroundColor: item,
+                    width: 24,
+                    height: 24,
+                    borderRadius: 12,
+                  }}
+                />
+              ))}
+          </Space>
+        );
+      },
       width: 300,
     },
     {
@@ -178,7 +190,7 @@ const Inventories = () => {
       title: "Stock",
       dataIndex: "subItems",
       render: (items: SubProductModel[]) =>
-        items.reduce((a, b) => a + b.quantity, 0),
+        items.reduce((a, b) => a + b.qty, 0),
       align: "center",
       width: 100,
     },
@@ -204,8 +216,7 @@ const Inventories = () => {
             <Tooltip title="Edit subProduct" key={"btneditsubproduct"}>
               <Button
                 onClick={() => {
-                  setProductSelected(item);
-                  // setIsVisibleModalAddSubProduct(true);
+                  navigate(`/inventory/add-product?id=${item._id}`);
                 }}
                 type="text"
                 icon={<Edit2 size={20} color={colors.primary500} />}

@@ -41,35 +41,43 @@ const AddSubProductModal = (props: Props) => {
         data[i] = values[i] ?? "";
       }
       data.productId = product._id;
-
-      if (fileList.length > 0) {
-        const urls: string[] = [];
-        fileList.forEach(async (item) => {
-          const url = await uploadFile(item.originFileObj);
-          url && urls.push(url);
-        });
-        data.images = urls;
-      }
       if (data.color) {
         data.color =
           typeof data.color === "string"
             ? data.color
             : data.color.toHexString();
       }
+      if (fileList.length > 0) {
+        const urls: string[] = [];
+        fileList.forEach(async (item) => {
+          const url = await uploadFile(item.originFileObj);
+          url && urls.push(url);
 
-      setIsLoading(true);
-      const api = "/products/add-sub-product";
-      try {
-        const res = await handleAPI(api, data, "post");
-        onAddNew(res.data);
-        handleCancel();
-      } catch (error: any) {
-        message.error(error.message);
-      } finally {
-        setIsLoading(false);
+          if (urls.length === fileList.length) {
+            await handleAwaitImageSubProduct({ ...data, images: urls });
+          }
+        });
+      } else {
+        await handleAwaitImageSubProduct(data);
       }
     } else {
       message.error("Product not found");
+    }
+  };
+
+  const handleAwaitImageSubProduct = async (data: any) => {
+    const api = "/products/add-sub-product";
+    try {
+      setIsLoading(true);
+
+      const res = await handleAPI(api, data, "post");
+      onAddNew(res.data);
+
+      handleCancel();
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -78,19 +86,20 @@ const AddSubProductModal = (props: Props) => {
     onclose();
   };
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
-    const items = newFileList.map(
-      (item) =>
-        item.originFileObj && {
-          ...item,
-          url: item.originFileObj
-            ? URL.createObjectURL(item.originFileObj)
-            : "",
-          status: "done",
-        }
+    const items = newFileList.map((item) =>
+      item.originFileObj
+        ? {
+            ...item,
+            url: item.originFileObj
+              ? URL.createObjectURL(item.originFileObj)
+              : "",
+            status: "done",
+          }
+        : { ...item }
     );
+
     setFileList(items);
   };
-
   return (
     <Modal
       title="Add sub product"
@@ -121,7 +130,7 @@ const AddSubProductModal = (props: Props) => {
 
         <div className="row">
           <div className="col">
-            <Form.Item name="quantity" label="Quantity">
+            <Form.Item name="qty" label="Quantity">
               <InputNumber style={{ width: "100%" }} />
             </Form.Item>
           </div>

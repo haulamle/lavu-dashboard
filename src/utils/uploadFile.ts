@@ -1,5 +1,3 @@
-/** @format */
-
 import { UploadProps } from "antd";
 import { storage } from "../firebase/firebaseConfig";
 import { replaceName } from "./replaceName";
@@ -59,18 +57,3 @@ export const handleChangeFile: UploadProps["onChange"] = ({
 
   return items;
 };
-
-// export const uploadFile = async (file: any) => {
-//   const filename = replaceName(file.name);
-//   const storageRef = ref(storage, `images/${filename}-${Date.now()}`);
-//   const res = await uploadBytes(storageRef, file);
-//   if (res) {
-//     if (res.metadata.size === file.size) {
-//       return getDownloadURL(storageRef);
-//     } else {
-//       return "Uploading";
-//     }
-//   } else {
-//     return "Error upload file";
-//   }
-// };

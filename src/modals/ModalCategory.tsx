@@ -4,15 +4,15 @@ import { TreeModel } from "../models/FormModel";
 
 interface Props {
   visible: boolean;
-  onclose: () => void;
+  onClose: () => void;
   onAddNew: (val: any) => void;
   values: TreeModel[];
 }
 const ModalCategory = (props: Props) => {
-  const { visible, values, onclose, onAddNew } = props;
+  const { visible, values, onClose, onAddNew } = props;
 
   const handleclose = async () => {
-    onclose();
+    onClose();
   };
 
   return (
@@ -26,7 +26,7 @@ const ModalCategory = (props: Props) => {
       <AddCategory
         onAddNew={(val) => {
           onAddNew(val);
-          onclose();
+          onClose();
         }}
         values={values}
       />

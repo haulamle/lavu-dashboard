@@ -139,8 +139,13 @@ const ToogleSupplier = (props: Props) => {
           size="large"
           onFinish={addNewSupplier}
         >
-          {formData.formItems.map((item) => (
-            <FormItem item={item} checked={isTaking} setChecked={setIsTaking} />
+          {formData.formItems.map((item, index) => (
+            <FormItem
+              item={item}
+              key={index}
+              checked={isTaking}
+              setChecked={setIsTaking}
+            />
           ))}
         </Form>
       )}

@@ -11,41 +11,52 @@ import {
   Spin,
   TreeSelect,
   Typography,
-  Image,
+  Upload,
+  UploadProps,
 } from "antd";
 import { Add } from "iconsax-react";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import handleAPI from "../../apis/handleAPI";
 import { ModalCategory } from "../../modals";
 import { SelectModel, TreeModel } from "../../models/FormModel";
-import { replaceName } from "../../utils/replaceName";
 import { getTreeValues } from "../../utils/getTreeValues";
+import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
 
 const { Title } = Typography;
 
 const AddProduct = () => {
-  const [fileUrl, setFileUrl] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
-  const [content, setContent] = useState("");
+  const [content, setcontent] = useState("");
   const [supplierOptions, setSupplierOptions] = useState<SelectModel[]>([]);
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
   const [isCreating, setIsCreating] = useState(false);
-  const [files, setFiles] = useState<any[]>([]);
+  const [fileUrl, setFileUrl] = useState("");
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("id");
 
   const editorRef = useRef<any>(null);
-  const inpFileRef = useRef<any>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
     getData();
   }, []);
 
+  useEffect(() => {
+    if (id) {
+      getProductDetail(id);
+    }
+  }, [id]);
+
   const getData = async () => {
     setIsLoading(true);
     try {
-      await getSupplier();
+      await getSuppliers();
       await getCategories();
     } catch (error: any) {
       message.error(error.message);
@@ -54,41 +65,84 @@ const AddProduct = () => {
     }
   };
 
+  const getProductDetail = async (id: string) => {
+    const api = `/products/detail?id=${id}`;
+    try {
+      const res = await handleAPI(api);
+      const item = res.data;
+
+      if (item) {
+        form.setFieldsValue(item);
+        setcontent(item.content);
+        if (item.images && item.images.length > 0) {
+          const items = [...fileList];
+          item.images.forEach((url: string) =>
+            items.push({
+              uid: `${Math.floor(Math.random() * 1000000)}`,
+              name: url,
+              status: "done",
+              url,
+            })
+          );
+
+          setFileList(items);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleAddNewProduct = async (values: any) => {
     const content = editorRef.current.getContent();
     const data: any = {};
     setIsCreating(true);
     for (const i in values) {
-      data[i] = values[i] ?? "";
+      data[`${i}`] = values[i] ?? "";
     }
+
     data.content = content;
     data.slug = replaceName(values.title);
-
-    if (files.length > 0) {
-      const urls: string[] = [];
-      for (const i in files) {
-        if (files[i].size && files[i].size > 0) {
-          const url = await uploadFile(files[i]);
-          urls.push(url);
-        }
+    if (fileList.length > 0) {
+      try {
+        const urls: string[] = [];
+        fileList.forEach(async (file) => {
+          if (file.originFileObj) {
+            const url = await uploadFile(file.originFileObj);
+            url && urls.push(url);
+          } else {
+            urls.push(file.url);
+          }
+          if (urls.length === fileList.length) {
+            await handleAwaitImagesProduct({ ...data, images: urls });
+          }
+        });
+      } catch (error) {
+        console.log(error);
       }
-      data.images = urls;
-    }
-
-    try {
-      const res = await handleAPI("/products/add-new", data, "post");
-      message.success(res.data.message);
-      window.history.back();
-    } catch (error: any) {
-      message.error(error.message);
-    } finally {
-      setIsCreating(false);
+    } else {
+      await handleAwaitImagesProduct(data);
     }
   };
 
-  const getSupplier = async () => {
-    const api = "/supplier";
+  const handleAwaitImagesProduct = async (data: any) => {
+    try {
+      const res = await handleAPI(
+        `/products/${id ? `update?id=${id}` : "add-new"}`,
+        data,
+        id ? "put" : "post"
+      );
+      setIsCreating(false);
+      window.location.href = "/inventory";
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getSuppliers = async () => {
+    const api = `/supplier`;
     const res = await handleAPI(api);
+
     const data = res.data.items;
     const options = data.map((item: any) => ({
       value: item._id,
@@ -106,12 +160,29 @@ const AddProduct = () => {
 
     setCategories(data);
   };
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    const items = newFileList.map((item) =>
+      item.originFileObj
+        ? {
+            ...item,
+            url: item.originFileObj
+              ? URL.createObjectURL(item.originFileObj)
+              : "",
+            status: "done",
+          }
+        : { ...item }
+    );
+
+    setFileList(items);
+  };
+
   return isLoading ? (
     <Spin />
   ) : (
     <div>
       <div className="container">
-        <Title level={5}>Add new product</Title>
+        <Title level={3}>Add new Product</Title>
         <Form
           disabled={isCreating}
           size="large"
@@ -124,26 +195,26 @@ const AddProduct = () => {
               <Form.Item
                 name={"title"}
                 label="Title"
-                rules={[{ required: true, message: "Enter title" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter product title",
+                  },
+                ]}
               >
                 <Input allowClear maxLength={150} showCount />
               </Form.Item>
-              <Form.Item
-                name={"description"}
-                label="Description"
-                rules={[{ required: true, message: "Enter description" }]}
-              >
+              <Form.Item name={"description"} label="Description">
                 <Input.TextArea
-                  allowClear
+                  maxLength={1000}
                   showCount
-                  maxLength={500}
-                  placeholder="Enter description"
+                  rows={4}
+                  allowClear
                 />
               </Form.Item>
-
               <Editor
                 disabled={isLoading || isCreating}
-                apiKey="c8ri048c72n87em4govx3yacxovhahncjald16bdxhu9qyv0"
+                apiKey="ikfkh2oosyq8z4b77hhj1ssxu7js46chtdrcq9j5lqum494c"
                 onInit={(evt, editor) => (editorRef.current = editor)}
                 initialValue={content !== "" ? content : ""}
                 init={{
@@ -185,34 +256,37 @@ const AddProduct = () => {
                   <Button
                     loading={isCreating}
                     size="middle"
-                    onClick={() => form.resetFields()}
+                    onClick={() => form.submit()}
                   >
                     Cancel
                   </Button>
                   <Button
+                    loading={isCreating}
                     type="primary"
                     size="middle"
                     onClick={() => form.submit()}
-                    loading={isCreating}
                   >
-                    Submit
+                    {id ? "Update" : "Submit"}
                   </Button>
                 </Space>
               </Card>
               <Card size="small" className="mt-3" title="Categories">
                 <Form.Item name={"categories"}>
                   <TreeSelect
-                    showSearch
                     treeData={categories}
                     multiple
                     dropdownRender={(menu) => (
                       <>
                         {menu}
-                        <Divider />
+
+                        <Divider className="m-0" />
                         <Button
                           onClick={() => setIsVisibleAddCategory(true)}
-                          icon={<Add size={20} />}
                           type="link"
+                          icon={<Add size={20} />}
+                          style={{
+                            padding: "0 16px",
+                          }}
                         >
                           Add new
                         </Button>
@@ -221,10 +295,15 @@ const AddProduct = () => {
                   />
                 </Form.Item>
               </Card>
-              <Card size="small" className="mt-3" title="Supplies">
+              <Card size="small" className="mt-3" title="Suppliers">
                 <Form.Item
                   name={"supplier"}
-                  rules={[{ required: true, message: "Enter Supplier" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Required",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -237,50 +316,33 @@ const AddProduct = () => {
                   />
                 </Form.Item>
               </Card>
-              <Card
-                size="small"
-                className="mt-3"
-                title="Images"
-                extra={
-                  <Button
-                    size="small"
-                    onClick={() => inpFileRef.current?.click()}
-                  >
-                    Upload images
-                  </Button>
-                }
-              >
-                {files.length > 0 && (
-                  <Image.PreviewGroup>
-                    {Object.keys(files).map(
-                      (i) =>
-                        files[parseInt(i)].size &&
-                        files[parseInt(i)].size > 0 && (
-                          <Image
-                            key={i}
-                            width={"50%"}
-                            src={URL.createObjectURL(files[parseInt(i)])}
-                          />
-                        )
-                    )}
-                  </Image.PreviewGroup>
-                )}
+              <Card size="small" className="mt-3" title="Images">
+                <Upload
+                  multiple
+                  fileList={fileList}
+                  accept="image/*"
+                  listType="picture-card"
+                  onChange={handleChange}
+                >
+                  Upload
+                </Upload>
               </Card>
-
               <Card className="mt-3">
                 <Input
+                  allowClear
                   value={fileUrl}
-                  onChange={(e) => setFileUrl(e.target.value)}
+                  onChange={(val) => setFileUrl(val.target.value)}
+                  className="mb-3"
                 />
                 <Input
-                  className="mt-3"
                   type="file"
                   accept="image/*"
                   onChange={async (files: any) => {
                     const file = files.target.files[0];
+
                     if (file) {
-                      const dowloadUrl = await uploadFile(file);
-                      dowloadUrl && setFileUrl(dowloadUrl);
+                      const donwloadUrl = await uploadFile(file);
+                      donwloadUrl && setFileUrl(donwloadUrl);
                     }
                   }}
                 />
@@ -289,18 +351,10 @@ const AddProduct = () => {
           </div>
         </Form>
       </div>
-      <div className="d-none">
-        <input
-          onChange={(vals: any) => setFiles(vals.target.files)}
-          type="file"
-          accept="image/*"
-          multiple
-          ref={inpFileRef}
-        />
-      </div>
+
       <ModalCategory
         visible={isVisibleAddCategory}
-        onclose={() => setIsVisibleAddCategory(false)}
+        onClose={() => setIsVisibleAddCategory(false)}
         onAddNew={async (val) => {
           await getCategories();
         }}

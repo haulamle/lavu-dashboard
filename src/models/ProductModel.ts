@@ -29,7 +29,7 @@ export interface SubProductModel {
   size: string;
   color: string;
   price: number;
-  quantity: number;
+  qty: number;
   productId: string;
   images: any[];
   _id: string;
