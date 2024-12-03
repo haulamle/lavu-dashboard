@@ -10,20 +10,21 @@ import {
   UploadProps,
 } from "antd";
 import { useEffect, useState } from "react";
+import handleAPI from "../apis/handleAPI";
 import { colors } from "../constants/colors";
 import { ProductModel, SubProductModel } from "../models/ProductModel";
 import { uploadFile } from "../utils/uploadFile";
-import handleAPI from "../apis/handleAPI";
 
 interface Props {
   visible: boolean;
   onclose: () => void;
   product?: ProductModel;
   onAddNew: (val: SubProductModel) => void;
+  subProduct?: SubProductModel;
 }
 
 const AddSubProductModal = (props: Props) => {
-  const { visible, onclose, product, onAddNew } = props;
+  const { visible, onclose, product, onAddNew, subProduct } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
@@ -33,6 +34,19 @@ const AddSubProductModal = (props: Props) => {
   useEffect(() => {
     form.setFieldValue("color", colors.primary500);
   }, []);
+
+  useEffect(() => {
+    if (subProduct) {
+      form.setFieldsValue(subProduct);
+      if (subProduct.images && subProduct.images.length > 0) {
+        const items = subProduct.images.map((url: string) => ({
+          url,
+        }));
+
+        setFileList(items);
+      }
+    }
+  }, [subProduct]);
 
   const handleAddSubProduct = async (values: any) => {
     if (product) {
@@ -50,9 +64,12 @@ const AddSubProductModal = (props: Props) => {
       if (fileList.length > 0) {
         const urls: string[] = [];
         fileList.forEach(async (item) => {
-          const url = await uploadFile(item.originFileObj);
-          url && urls.push(url);
-
+          if (item.originFileObj) {
+            const url = await uploadFile(item.originFileObj);
+            url && urls.push(url);
+          } else {
+            urls.push(item.url);
+          }
           if (urls.length === fileList.length) {
             await handleAwaitImageSubProduct({ ...data, images: urls });
           }
@@ -66,11 +83,12 @@ const AddSubProductModal = (props: Props) => {
   };
 
   const handleAwaitImageSubProduct = async (data: any) => {
-    const api = "/products/add-sub-product";
+    const api = `/products/${
+      subProduct ? `update-sub-product?id=${subProduct._id}` : "add-sub-product"
+    }`;
     try {
       setIsLoading(true);
-
-      const res = await handleAPI(api, data, "post");
+      const res = await handleAPI(api, data, subProduct ? "put" : "post");
       onAddNew(res.data);
 
       handleCancel();

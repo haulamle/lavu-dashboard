@@ -72,10 +72,14 @@ export default function SignUp() {
             name={"password"}
             label={"Password"}
             rules={[
-              { required: true, message: "Please enter your password!!!" },
+              // { required: true, message: "Please enter your password!!!" },
               () => ({
                 validator(_, value) {
-                  if (value && value.length < 6) {
+                  if (!value) {
+                    return Promise.reject(
+                      new Error("Please enter your password!!!")
+                    );
+                  } else if (value.length < 6) {
                     return Promise.reject(
                       new Error("Password must be at least 6 characters")
                     );

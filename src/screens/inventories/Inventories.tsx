@@ -1,45 +1,67 @@
-import { useEffect, useState } from "react";
-import handleAPI from "../../apis/handleAPI";
 import {
   Avatar,
   Button,
+  Card,
+  Divider,
+  Input,
   message,
   Modal,
-  QRCode,
   Space,
   Table,
   Tag,
   Tooltip,
   Typography,
 } from "antd";
-import { ProductModel, SubProductModel } from "../../models/ProductModel";
-import { ColumnProps } from "antd/es/table";
-import CategoryComponent from "../../components/CategoryComponent";
+import { ColumnProps, TableProps } from "antd/es/table";
+import { Edit2, Sort, Trash } from "iconsax-react";
+import { useEffect, useState } from "react";
 import { MdLibraryAdd } from "react-icons/md";
+import { Link, useNavigate } from "react-router-dom";
+import handleAPI from "../../apis/handleAPI";
+import CategoryComponent from "../../components/CategoryComponent";
 import { colors } from "../../constants/colors";
 import { AddSubProductModal } from "../../modals";
-import { Link, useNavigate } from "react-router-dom";
-import { Edit2, Trash } from "iconsax-react";
+import { ProductModel, SubProductModel } from "../../models/ProductModel";
+import { replaceName } from "../../utils/replaceName";
+import Dropdown from "antd/es/dropdown/dropdown";
+import { FilterProduct } from "../../components";
+import { FilterProductValue } from "../../components/FilterProduct";
 
 const { confirm } = Modal;
+type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
 const Inventories = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [isVisibleModalAddSubProduct, setIsVisibleModalAddSubProduct] =
     useState(false);
   const [productSelected, setProductSelected] = useState<ProductModel>();
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(10);
+  const [searchKey, setSearchKey] = useState("");
+  const [isFilting, setIsFilting] = useState(false);
 
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!searchKey) {
+      setPage(1);
+      getProducts(`/products?page=${page}&pageSize=${pageSize}`);
+    }
+  }, [page, pageSize, searchKey]);
 
   useEffect(() => {
-    getProducts();
-  }, []);
+    getProducts(`/products?page=${page}&pageSize=${pageSize}`);
+  }, [page, pageSize]);
 
-  const getProducts = async () => {
+  const getProducts = async (api: string) => {
     setIsLoading(true);
     try {
-      const res = await handleAPI("/products");
-      setProducts(res.data);
+      const res = await handleAPI(api);
+      const data = res.data;
+      setProducts(data.items.map((item: any) => ({ ...item, key: item._id })));
+      setTotal(data.totalItems);
     } catch (error: any) {
       message.error(error.message);
     } finally {
@@ -93,7 +115,12 @@ const Inventories = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      width: 400,
+      width: 320,
+      render: (des: string) => (
+        <Tooltip title={des}>
+          <div className="text-2-line">{des}</div>
+        </Tooltip>
+      ),
     },
     {
       key: "categories",
@@ -247,15 +274,160 @@ const Inventories = () => {
       width: 150,
     },
   ];
+  const onSelectChange = (selectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(selectedRowKeys);
+  };
+  const rowSelection: TableRowSelection<ProductModel> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+  const handleSelectAllProduct = async () => {
+    try {
+      const res = await handleAPI("/products");
+      const items = res.data.items;
+      if (items.length > 0) {
+        const keys = items.map((item: ProductModel) => item._id);
+        setSelectedRowKeys(keys);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSearchProducts = async () => {
+    const key = replaceName(searchKey);
+    setPage(1);
+    const api = `/products?title=${key}&page=${page}&pageSize=${pageSize} `;
+    setIsLoading(true);
+    try {
+      const res = await handleAPI(api);
+      setProducts(res.data.items);
+      setTotal(res.data.total);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFilerProducts = async (vals: FilterProductValue) => {
+    const api = `/products/filter-products`;
+    setIsFilting(true);
+    try {
+      const res = await handleAPI(api, vals, "post");
+      setTotal(res.data.totalItems);
+      setProducts(res.data.items);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
+      <div className="row">
+        <div className="col">
+          <Typography.Title level={4}>Product</Typography.Title>
+        </div>
+        <div className="col">
+          {selectedRowKeys.length > 0 && (
+            <Space>
+              <Tooltip title="Delete product" key="btndelete">
+                <Button
+                  onClick={() =>
+                    confirm({
+                      title: "Are you sure you want to delete this product?",
+                      content:
+                        "When clicked the OK button, this product will be deleted.",
+                      onOk: () => {
+                        selectedRowKeys.forEach(
+                          async (key) =>
+                            await handleRemoveProduct(key as string)
+                        );
+                      },
+
+                      onCancel: () => {
+                        setSelectedRowKeys([]);
+                      },
+                    })
+                  }
+                  danger
+                  type="text"
+                  icon={<Trash size={18} className="text-danger" />}
+                >
+                  Delete
+                </Button>
+              </Tooltip>
+
+              <Typography.Text>
+                {selectedRowKeys.length} items selected
+              </Typography.Text>
+              {selectedRowKeys.length > 0 && selectedRowKeys.length < total && (
+                <Button type="link" onClick={handleSelectAllProduct}>
+                  Select all
+                </Button>
+              )}
+            </Space>
+          )}
+        </div>
+        <div className="col text-right">
+          <Space>
+            {isFilting && (
+              <Button
+                onClick={async () => {
+                  setIsFilting(false);
+                  setPage(1);
+                  await getProducts(
+                    `/products?page=${page}&pageSize=${pageSize}`
+                  );
+                }}
+              >
+                Clear filter
+              </Button>
+            )}
+            <Input.Search
+              value={searchKey}
+              onChange={(val) => setSearchKey(val.target.value)}
+              onSearch={handleSearchProducts}
+              placeholder="search"
+              allowClear
+              style={{ minWidth: "100px" }}
+            />
+            <Dropdown
+              dropdownRender={(menu) => (
+                <FilterProduct
+                  values={{}}
+                  onFiter={(val) => {
+                    handleFilerProducts(val);
+                  }}
+                />
+              )}
+            >
+              <Button icon={<Sort size={20} />}>Filter</Button>
+            </Dropdown>
+
+            <Divider type="vertical" />
+            <Button style={{ background: colors.primary500 }}>
+              Add Product
+            </Button>
+          </Space>
+        </div>
+      </div>
       <Table
         bordered
         scroll={{ x: "100%" }}
         dataSource={products}
         columns={columns}
         loading={isLoading}
+        rowSelection={rowSelection}
+        pagination={{
+          showSizeChanger: true,
+          total,
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+          showQuickJumper: false,
+        }}
       />
       <AddSubProductModal
         product={productSelected}
