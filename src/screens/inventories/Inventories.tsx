@@ -405,7 +405,10 @@ const Inventories = () => {
             </Dropdown>
 
             <Divider type="vertical" />
-            <Button style={{ background: colors.primary500 }}>
+            <Button
+              onClick={() => navigate(`/inventory/add-product`)}
+              style={{ background: colors.primary500 }}
+            >
               Add Product
             </Button>
           </Space>
