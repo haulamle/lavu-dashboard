@@ -1,7 +1,6 @@
 import {
   Avatar,
   Button,
-  Card,
   Divider,
   Input,
   message,
@@ -12,20 +11,20 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import Dropdown from "antd/es/dropdown/dropdown";
 import { ColumnProps, TableProps } from "antd/es/table";
 import { Edit2, Sort, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { MdLibraryAdd } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import handleAPI from "../../apis/handleAPI";
+import { FilterProduct } from "../../components";
 import CategoryComponent from "../../components/CategoryComponent";
+import { FilterProductValue } from "../../components/FilterProduct";
 import { colors } from "../../constants/colors";
 import { AddSubProductModal } from "../../modals";
 import { ProductModel, SubProductModel } from "../../models/ProductModel";
 import { replaceName } from "../../utils/replaceName";
-import Dropdown from "antd/es/dropdown/dropdown";
-import { FilterProduct } from "../../components";
-import { FilterProductValue } from "../../components/FilterProduct";
 
 const { confirm } = Modal;
 type TableRowSelection<T extends object = object> =
@@ -60,7 +59,7 @@ const Inventories = () => {
     try {
       const res = await handleAPI(api);
       const data = res.data;
-      setProducts(data.items.map((item: any) => ({ ...item, key: item._id })));
+      setProducts(data.items?.map((item: any) => ({ ...item, key: item._id })));
       setTotal(data.totalItems);
     } catch (error: any) {
       message.error(error.message);
@@ -127,7 +126,7 @@ const Inventories = () => {
       dataIndex: "categories",
       title: "Categories",
       render: (ids: string[]) => (
-        <Space>
+        <Space wrap>
           {ids.map((id) => (
             <CategoryComponent key={id} id={id} />
           ))}

@@ -69,7 +69,7 @@ const AddProduct = () => {
     const api = `/products/detail?id=${id}`;
     try {
       const res = await handleAPI(api);
-      const item = res.data;
+      const item = res.data.product;
 
       if (item) {
         form.setFieldsValue(item);

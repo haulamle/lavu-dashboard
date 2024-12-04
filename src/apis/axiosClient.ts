@@ -3,6 +3,7 @@ import queryString from "query-string";
 import { localDataNames } from "../constants/appInfos";
 
 const baseURL = `http://192.168.1.9:8000`;
+const baseURLProduction = `https://lavu-server.onrender.com`;
 const getAssetToken = () => {
   const res = localStorage.getItem(localDataNames.authData);
   if (res) {
@@ -14,7 +15,7 @@ const getAssetToken = () => {
 };
 
 const axiosClient = axios.create({
-  baseURL: baseURL,
+  baseURL: baseURLProduction,
   paramsSerializer: (params) => queryString.stringify(params),
 });
 

@@ -2,13 +2,13 @@ import { Button, Card, message, Modal, Space, Spin, Tooltip } from "antd";
 import Table, { ColumnProps } from "antd/es/table";
 import { Edit2, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import handleAPI from "../../apis/handleAPI";
 import { AddCategory } from "../../components";
 import { colors } from "../../constants/colors";
 import { TreeModel } from "../../models/FormModel";
 import { CategoryModel } from "../../models/ProductModel";
 import { getTreeValues } from "../../utils/getTreeValues";
-import { Link } from "react-router-dom";
 
 const { confirm } = Modal;
 export const Categories = () => {
